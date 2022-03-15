@@ -1,0 +1,28 @@
+{
+  "name": "node-helpers",
+  "version": "1.0.0",
+  "description": "private node helper utility methods",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/docluv/helpers.git"
+  },
+  "author": "Chris Love",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/docluv/helpers/issues"
+  },
+  "homepage": "https://github.com/docluv/helpers#readme",
+  "dependencies": {
+    "glob": "*",
+    "mime-types": "*",
+    "mkdirp": "*",
+    "mustache": "*",
+    "aws-sdk": "2.1010.0",
+    "lodash": "^4.17.21",
+    "uuid": "^3.3.2"
+  }
+}
