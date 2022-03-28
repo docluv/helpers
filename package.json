@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "private node helper utility methods",
   "main": "index.js",
+  "private": true,
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -21,7 +22,6 @@
     "mime-types": "*",
     "mkdirp": "*",
     "mustache": "*",
-    "aws-sdk": "2.1010.0",
     "lodash": "^4.17.21",
     "uuid": "^3.3.2"
   }
