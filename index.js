@@ -500,6 +500,19 @@ function isArray(src) {
 
 }
 
+function removeEmptyItems(src) {
+
+    if (!src || !Array.isArray(src)) {
+        return [];
+    }
+
+    return src.filter(o => {
+        return !!o;
+    });
+
+}
+
+
 module.exports = {
 
     merge: merge,
@@ -824,5 +837,6 @@ module.exports = {
     OK: OK,
     cleanEmptyObjectProperties: cleanEmptyObjectProperties,
     removeItemFromList: removeItemFromList,
-    isArray: isArray
+    isArray: isArray,
+    removeEmptyItems: removeEmptyItems
 };
