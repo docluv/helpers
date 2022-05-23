@@ -512,6 +512,43 @@ function removeEmptyItems(src) {
 
 }
 
+/**
+ * 
+ * @param {Array of promise/async methods to execute} funcs 
+ * 
+    executes a Promise.allSettled on an array of async functions.
+    it then filters successful and rejected functions into a return object.
+
+
+ */
+async function allSettled(funcs) {
+
+    let results = await Promise.allSettled(funcs);
+
+    let rejected = [];
+
+    results = results.map(o => {
+
+        if (o.status === "fulfilled") {
+
+            return o.value;
+
+        } else {
+
+            rejected.push(o.reason);
+
+        }
+    }).filter(o => {
+        return !!o;
+    });
+
+    return {
+        "results": results,
+        "rejectd": rejected
+    };
+
+}
+
 
 module.exports = {
 
@@ -838,5 +875,6 @@ module.exports = {
     cleanEmptyObjectProperties: cleanEmptyObjectProperties,
     removeItemFromList: removeItemFromList,
     isArray: isArray,
-    removeEmptyItems: removeEmptyItems
+    removeEmptyItems: removeEmptyItems,
+    allSettled: allSettled
 };
