@@ -544,7 +544,7 @@ async function allSettled(funcs) {
 
     return {
         "results": results,
-        "rejectd": rejected
+        "rejected": rejected
     };
 
 }
