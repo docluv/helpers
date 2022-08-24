@@ -22,7 +22,6 @@
     "mime-types": "*",
     "mkdirp": "*",
     "mustache": "*",
-    "lodash": "^4.17.21",
-    "uuid": "^3.3.2"
+    "uuid": "*"
   }
 }
