@@ -13,6 +13,29 @@ const fs = require("fs"),
     /** Used to detect unsigned integer values. */
     reIsUint = /^(?:0|[1-9]\d*)$/;
 
+
+function walkSync(dir, filelist) {
+
+    let files = fs.readdirSync(dir);
+
+    filelist = filelist || [];
+
+    files.forEach(function (file) {
+
+        if (fs.statSync(dir + file).isDirectory()) {
+
+            filelist = walkSync(dir + file + '/', filelist);
+        } else {
+
+            filelist.push(dir + file);
+        }
+
+    });
+
+    return filelist;
+
+}
+
 function stripBom(string) {
 
     if (typeof string !== 'string') {
@@ -861,6 +884,7 @@ module.exports = {
         return str.replace(" - ", " ").split(" ").map((n) => n[0]).join("").substring(0, 2).toUpperCase();
     },
 
+    walkSync: walkSync,
     cleanObject: cleanObject,
     decodeJWT: decodeJWT,
     utf8: utf8,
