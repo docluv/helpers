@@ -25,6 +25,7 @@ function walkSync(dir, filelist) {
         if (fs.statSync(dir + file).isDirectory()) {
 
             filelist = walkSync(dir + file + '/', filelist);
+
         } else {
 
             filelist.push(dir + file);
@@ -82,13 +83,13 @@ function parse(value) {
         return {};
     }
 
-    if (typeof value === "string") {
+    if (typeof value === "string" && value !== "") {
 
         value = JSON.parse(value);
 
     }
 
-    return value;
+    return value || {};
 
 }
 
@@ -147,8 +148,8 @@ function base64URLDecode(base64UrlEncodedValue) {
 
     var result,
         newValue = base64UrlEncodedValue
-        .replace("-", "+")
-        .replace("_", "/");
+            .replace("-", "+")
+            .replace("_", "/");
 
     try {
 
@@ -226,6 +227,41 @@ function belongsToCognitoGroup(headers, expected) {
 
 }
 
+
+function tokenHasClaim(headers, key) {
+
+    if (!headers) {
+        return false;
+    }
+
+    let token = headers.Authorization || headers.authorization || "";
+
+    if (!token) {
+        return false;
+    }
+
+    token = decodeJWT(token);
+
+    let group = token["cognito:groups"],
+        value;
+
+    for (const _key in token) {
+
+        targetKey = key.replace("cognito:", "").replace("custom:", "");
+
+        if (_key === targetKey) {
+
+            value = token[_key];
+
+        }
+
+    }
+
+    return value;
+
+}
+
+
 function cleanEmptyObjectProperties(obj) {
 
     let ex = obj;
@@ -291,34 +327,26 @@ function cleanObject(obj) {
 
 function queryStringtoJSON(src) {
 
-    let pairs = src.slice(1).split("&");
+    return Object.fromEntries(new URLSearchParams(src));
 
-    let result = {};
-
-    pairs.forEach(function (pair) {
-        pair = pair.split("=");
-        result[pair[0]] = decodeURIComponent(pair[1] || "");
-    });
-
-    return result;
 }
 
-// DEPRECATED
-// function jsonToQueryString(json) {
+function jsonToQueryString(json) {
 
-//     if (!json) {
-//         return "";
-//     }
+    if (!json) {
+        return "";
+    }
 
-//     return (
-//         "?" +
-//         Object.keys(json)
-//         .map(function (key) {
-//             return encodeURIComponent(key) + "=" + encodeURIComponent(json[key]);
-//         })
-//         .join("&")
-//     );
-// }
+    let searchObj = new URLSearchParams();
+
+    for (const key in json) {
+
+        searchObj.append(key, json[key]);
+    }
+
+    return searchObj.toString();
+
+}
 
 
 const assign = Object.assign || ((a, b) => (b && Object.keys(b).forEach(k => (a[k] = b[k])), a))
@@ -579,7 +607,7 @@ module.exports = {
 
     isValidDate: isValidDate,
     dateToTicks: dateToTicks,
-    //   jsonToQueryString: jsonToQueryString,
+    jsonToQueryString: jsonToQueryString,
     queryStringtoJSON: queryStringtoJSON,
 
     generatePassword: generatePassword,
@@ -887,6 +915,8 @@ module.exports = {
     walkSync: walkSync,
     cleanObject: cleanObject,
     decodeJWT: decodeJWT,
+    tokenHasClaim: tokenHasClaim,
+
     utf8: utf8,
     randomChar: randomChar,
     randomId: randomId,
