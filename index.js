@@ -37,6 +37,30 @@ function walkSync(dir, filelist) {
 
 }
 
+
+function getFolders (dir) {
+
+    let folders = [];
+
+    fs.readdirSync(dir).forEach((file) => {
+
+        const filePath = path.join(dir, file);
+        const fileStat = fs.lstatSync(filePath);
+
+        if (fileStat.isDirectory()) {
+
+            folders.push(filePath);
+            
+            folders = folders.concat(getFolders(filePath));
+
+        }
+
+    });
+
+    return folders;
+
+};
+
 function stripBom(string) {
 
     if (typeof string !== 'string') {
@@ -165,6 +189,7 @@ function base64URLDecode(base64UrlEncodedValue) {
 function OK(body, callback) {
 
     httpRespond(body, callback, 200);
+    
 }
 
 function httpRespond(body, callback, status) {
@@ -601,6 +626,37 @@ async function allSettled(funcs) {
 }
 
 
+function ensureEndingSlash(src) {
+
+    if (!src.endsWith("/")) {
+
+        return src + "/";
+
+    }
+
+    return src;
+
+}
+
+function formatHoursTo12(hours) {
+    return hours % 12 || 12;
+}
+
+function padNumberWithLeadingZero(number, padding) {
+
+    padding = padding || 2;
+
+    return String(number).padStart(padding, '0') || "00"
+
+}
+
+
+function AMPM(hours) {
+
+    return (hours >= 12) ? "PM" : "AM";
+
+}
+
 module.exports = {
 
     merge: merge,
@@ -611,6 +667,10 @@ module.exports = {
     queryStringtoJSON: queryStringtoJSON,
 
     generatePassword: generatePassword,
+
+    formatHoursTo12: formatHoursTo12,
+    padNumberWithLeadingZero: padNumberWithLeadingZero,
+    AMPM: AMPM,
 
     getMimeType: function (name) {
 
@@ -804,6 +864,8 @@ module.exports = {
 
     },
 
+    "ensureEndingSlash": ensureEndingSlash,
+
     titleCase: function (str) {
 
         if (str) {
@@ -913,6 +975,7 @@ module.exports = {
     },
 
     walkSync: walkSync,
+    getFolders: getFolders,
     cleanObject: cleanObject,
     decodeJWT: decodeJWT,
     tokenHasClaim: tokenHasClaim,
