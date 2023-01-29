@@ -2,8 +2,7 @@
 
 "use strict";
 
-const fs = require("fs"),
-    path = require("path"),
+const file = require("./file"),
     crypto = require("crypto"),
     mime = require("mime-types"),
     template = require("mustache"),
@@ -13,68 +12,6 @@ const fs = require("fs"),
     /** Used to detect unsigned integer values. */
     reIsUint = /^(?:0|[1-9]\d*)$/;
 
-
-function walkSync(dir, filelist) {
-
-    let files = fs.readdirSync(dir);
-
-    filelist = filelist || [];
-
-    files.forEach(function (file) {
-
-        if (fs.statSync(dir + file).isDirectory()) {
-
-            filelist = walkSync(dir + file + '/', filelist);
-
-        } else {
-
-            filelist.push(dir + file);
-        }
-
-    });
-
-    return filelist;
-
-}
-
-
-function getFolders (dir) {
-
-    let folders = [];
-
-    fs.readdirSync(dir).forEach((file) => {
-
-        const filePath = path.join(dir, file);
-        const fileStat = fs.lstatSync(filePath);
-
-        if (fileStat.isDirectory()) {
-
-            folders.push(filePath);
-            
-            folders = folders.concat(getFolders(filePath));
-
-        }
-
-    });
-
-    return folders;
-
-};
-
-function stripBom(string) {
-
-    if (typeof string !== 'string') {
-        throw new TypeError(`Expected a string, got ${typeof string}`);
-    }
-
-    // Catches EFBBBF (UTF-8 BOM) because the buffer-to-string
-    // conversion translates it to FEFF (UTF-16 BOM).
-    if (string.charCodeAt(0) === 0xFEFF) {
-        return string.slice(1);
-    }
-
-    return string;
-}
 
 const randomChar = () => {
     return String.fromCharCode(65 + Math.floor(Math.random() * 26));
@@ -143,31 +80,6 @@ function atob(str) {
 
 }
 
-function decodeJWT(jwt) {
-
-    if (jwt === "") {
-        return "";
-    }
-
-    if (typeof jwt === "object" && jwt.token) {
-        jwt = jwt.token;
-    }
-
-    jwt = jwt.replace(/bearer/gi, "");
-
-    var segments = jwt.split('.'),
-        content;
-
-    if (segments.length != 3) {
-        throw "JWT is required to have three segments";
-    }
-
-    content = base64URLDecode(segments[1]);
-
-    return content;
-
-}
-
 function base64URLDecode(base64UrlEncodedValue) {
 
     var result,
@@ -184,106 +96,6 @@ function base64URLDecode(base64UrlEncodedValue) {
     }
 
     return parse(result);
-}
-
-function OK(body, callback) {
-
-    httpRespond(body, callback, 200);
-    
-}
-
-function httpRespond(body, callback, status) {
-
-    if (!body) {
-        body = "";
-    }
-
-    if (typeof body !== "string") {
-        body = stringify(body);
-    }
-
-    callback(null, {
-        statusCode: status || 200,
-        "headers": RESP_HEADERS,
-        body: body
-    });
-
-}
-
-function belongsToCognitoGroup(headers, expected) {
-
-    if (!headers) {
-        return false;
-    }
-
-    let token = headers.Authorization || headers.authorization || "";
-
-    if (!token) {
-        return false;
-    }
-
-    token = decodeJWT(token);
-
-    let group = token["cognito:groups"];
-
-    if (typeof group === 'string') {
-        group = parse(group);
-    }
-
-    if (!Array.isArray(group)) {
-        group = [group];
-    }
-
-    if (!Array.isArray(expected)) {
-        expected = [expected];
-    }
-
-    let isAuthorized = false;
-
-    for (let index = 0; index < expected.length; index++) {
-
-        if (group.includes(expected[index])) {
-            isAuthorized = true;
-        }
-
-    }
-
-    return isAuthorized;
-
-}
-
-
-function tokenHasClaim(headers, key) {
-
-    if (!headers) {
-        return false;
-    }
-
-    let token = headers.Authorization || headers.authorization || "";
-
-    if (!token) {
-        return false;
-    }
-
-    token = decodeJWT(token);
-
-    let group = token["cognito:groups"],
-        value;
-
-    for (const _key in token) {
-
-        targetKey = key.replace("cognito:", "").replace("custom:", "");
-
-        if (_key === targetKey) {
-
-            value = token[_key];
-
-        }
-
-    }
-
-    return value;
-
 }
 
 
@@ -546,30 +358,6 @@ function generatePassword(pattern, length, options) {
 
 }
 
-async function renameFile(srcPath, newPath) {
-
-    if (fs.existsSync(srcPath)) {
-
-        if (!fs.existsSync(path.dirname(newPath))) {
-            fs.mkdirSync(path.dirname(newPath), {
-                recursive: true
-            });
-        }
-
-        return await fs.promises.rename(srcPath, newPath);
-
-    }
-
-}
-
-function MakeDirectory(target) {
-
-    if (!fs.existsSync(target)) {
-        fs.mkdirSync(target);
-    }
-
-}
-
 function isArray(src) {
 
     return Array.isArray(src) && src.length > 0;
@@ -699,27 +487,20 @@ module.exports = {
         return md5.digest('hex');
     },
 
-    unixifyPath: function (filepath) {
-        if (isWindows) {
-            return filepath.replace(/\\/g, '/');
-        } else {
-            return filepath;
-        }
-    },
+    unixifyPath: file.unixifyPath,
+    renameFile: file.renameFile,
+    MakeDirectory: file.MakeDirectory,
+    walkSync: file.walkSync,
+    getFolders: file.getFolders,
+    copyFileSync: file.copyFileSync,
+    stripBom: file.stripBom,
+    readFile: file.readFile,
+    readJSON: file.readJSON,
+    writeJSON: file.writeJSON,
+    ensureFilePath: file.ensureFilePath,
+    createFile: file.createFile,
+    generateFile: file.generateFile,
 
-    renameFile: renameFile,
-    MakeDirectory: MakeDirectory,
-
-    copyFileSync: function (srcFile, destFile, override) {
-
-        override = override || this.project.overwrite;
-
-        if (!fs.existsSync(srcFile) || override) {
-
-            this.createFile(destFile, fs.readFileSync(srcFile, utf8), override);
-
-        }
-    },
 
     capitalizeFirstLetter: function (str) {
 
@@ -747,39 +528,6 @@ module.exports = {
 
     },
 
-    createFile: function (target, body, override) {
-
-        override = override || false;
-
-        if (!fs.existsSync(target) || override) {
-
-            if (!fs.existsSync(path.dirname(target))) {
-
-                fs.mkdirSync(path.dirname(target), {
-                    recursive: true
-                });
-
-            }
-
-            fs.writeFileSync(target, body, utf8);
-        }
-
-    },
-
-    generateFile: function (src, dest, data, override) {
-
-        override = override || false;
-
-        if (!fs.existsSync(dest) || override) {
-
-            var content = fs.readFileSync(src, utf8);
-
-            this.createFile(dest, template.render(content, data), override);
-
-        }
-
-    },
-
     render: function (src, data) {
         return template.render(src, data);
     },
@@ -803,64 +551,6 @@ module.exports = {
             return 0;
 
         });
-
-    },
-
-    readFile: function (src) {
-
-        if (fs.existsSync(src)) {
-
-            return stripBom(fs.readFileSync(src, utf8));
-
-        } else {
-            return undefined;
-        }
-
-    },
-
-    readJSON: function (src) {
-
-        let content = this.readFile(src);
-
-        if (content) {
-
-            return this.parse(content);
-
-        }
-
-    },
-
-    writeJSON: function (target, body, overwrite) {
-
-        return this.createFile(target, this.stringify(body), overwrite);
-
-    },
-
-    ensureFilePath: function (target) {
-
-        var folder = path.dirname(target),
-            folders = folder.toLowerCase().replace(/c:\\/g, "").split("\\"),
-            targetFolder = "c:\\";
-
-        for (var i = 0; i < folders.length; i++) {
-
-            if (targetFolder === "c:\\") {
-
-                targetFolder += folders[i];
-
-            } else {
-
-                targetFolder += "\\" + folders[i];
-
-            }
-
-            if (!fs.existsSync(targetFolder)) {
-
-                fs.mkdirSync(targetFolder);
-
-            }
-
-        }
 
     },
 
@@ -974,11 +664,7 @@ module.exports = {
         return str.replace(" - ", " ").split(" ").map((n) => n[0]).join("").substring(0, 2).toUpperCase();
     },
 
-    walkSync: walkSync,
-    getFolders: getFolders,
     cleanObject: cleanObject,
-    decodeJWT: decodeJWT,
-    tokenHasClaim: tokenHasClaim,
 
     utf8: utf8,
     randomChar: randomChar,
@@ -986,9 +672,6 @@ module.exports = {
     parse: parse,
     stringify: stringify,
     base64URLDecode: base64URLDecode,
-    belongsToCognitoGroup: belongsToCognitoGroup,
-    httpRespond: httpRespond,
-    OK: OK,
     cleanEmptyObjectProperties: cleanEmptyObjectProperties,
     removeItemFromList: removeItemFromList,
     isArray: isArray,
