@@ -72,6 +72,31 @@ function stripBom(string) {
     return string;
 }
 
+/**
+ * read image from the local disk. The function will return undefined if the file does not exist. It will return the image file if it exists, ready to be used.
+ * @param {*} src 
+ * @returns image file
+ */
+
+function readImage(src) {
+
+    try {
+
+        if (fs.existsSync(src)) {
+            return fs.readFileSync(src);
+        } else {
+            return undefined;
+        }
+
+    } catch (error) {
+
+        console.error(error);
+        return undefined;
+
+    }
+
+}
+
 
 function readFile(src) {
 
@@ -80,6 +105,21 @@ function readFile(src) {
         return stripBom(fs.readFileSync(src, utf8));
 
     } else {
+        return undefined;
+    }
+
+}
+
+function loadFile(src) {
+ 
+    const type = mime.lookup(src);
+ 
+    if (type.startsWith('text')) {
+        return readFile(src);
+    } else if (type.startsWith('image')) {
+        return readImage(src);
+    } else {
+        console.error(`Unsupported file type: ${type}`);
         return undefined;
     }
 
@@ -227,5 +267,7 @@ module.exports = {
     createFile: createFile,
     generateFile: generateFile,
     walkSync: walkSync,
-    getFolders: getFolders
+    getFolders: getFolders,
+    loadFile: loadFile,
+    readImage: readImage
 };

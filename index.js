@@ -500,7 +500,8 @@ module.exports = {
     ensureFilePath: file.ensureFilePath,
     createFile: file.createFile,
     generateFile: file.generateFile,
-
+    loadFile: file.loadFile,
+    readImage: file.readImage,
 
     capitalizeFirstLetter: function (str) {
 
