@@ -2,7 +2,7 @@
 
 "use strict";
 
-const file = require("./file"),
+const file = require("./files"),
     crypto = require("crypto"),
     mime = require("mime-types"),
     template = require("mustache"),
