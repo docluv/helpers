@@ -1,6 +1,6 @@
 const fs = require("fs"),
     path = require("path"),
-    util = require("./index");
+    utils = require("../utils");
 
 
 function unixifyPath(filepath) {
@@ -131,7 +131,7 @@ function readJSON(src) {
 
     if (content) {
 
-        return util.parse(content);
+        return utils.parse(content);
 
     }
 
@@ -139,7 +139,7 @@ function readJSON(src) {
 
 function writeJSON(target, body, overwrite) {
 
-    return createFile(target, util.stringify(body), overwrite);
+    return createFile(target, utils.stringify(body), overwrite);
 
 }
 
