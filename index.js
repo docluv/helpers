@@ -3,6 +3,7 @@
 "use strict";
 
 const file = require("./files"),
+    utils = require("./utils"),
     crypto = require("crypto"),
     mime = require("mime-types"),
     template = require("mustache"),
@@ -38,37 +39,6 @@ let type = {
 
 type.all = type.lower + type.upper + type.number + type.special;
 
-function parse(value) {
-
-    if (!value) {
-        return {};
-    }
-
-    if (typeof value === "string" && value !== "") {
-
-        value = JSON.parse(value);
-
-    }
-
-    return value || {};
-
-}
-
-function stringify(value) {
-
-    if (!value) {
-        return "";
-    }
-
-    if (typeof value !== "string") {
-
-        value = JSON.stringify(value);
-
-    }
-
-    return value;
-
-}
 
 function isNumeric(n) {
     return !isNaN(parseFloat(n)) && isFinite(n);
@@ -670,8 +640,8 @@ module.exports = {
     utf8: utf8,
     randomChar: randomChar,
     randomId: randomId,
-    parse: parse,
-    stringify: stringify,
+    parse: utils.parse,
+    stringify: utils.stringify,
     base64URLDecode: base64URLDecode,
     cleanEmptyObjectProperties: cleanEmptyObjectProperties,
     removeItemFromList: removeItemFromList,
