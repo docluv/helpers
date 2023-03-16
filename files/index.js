@@ -1,6 +1,7 @@
 const fs = require("fs"),
     path = require("path"),
-    utils = require("../utils");
+    utf8 = "utf-8",
+    json = require("../json");
 
 
 function unixifyPath(filepath) {
@@ -131,7 +132,7 @@ function readJSON(src) {
 
     if (content) {
 
-        return utils.parse(content);
+        return json.parse(content);
 
     }
 
@@ -139,7 +140,7 @@ function readJSON(src) {
 
 function writeJSON(target, body, overwrite) {
 
-    return createFile(target, utils.stringify(body), overwrite);
+    return createFile(target, json.stringify(body), overwrite);
 
 }
 
@@ -269,5 +270,6 @@ module.exports = {
     walkSync: walkSync,
     getFolders: getFolders,
     loadFile: loadFile,
-    readImage: readImage
+    readImage: readImage,
+    utf8: utf8
 };

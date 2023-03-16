@@ -4,10 +4,10 @@
 
 const file = require("./files"),
     utils = require("./utils"),
+    json = require("./json"),
     crypto = require("crypto"),
     mime = require("mime-types"),
     template = require("mustache"),
-    utf8 = "utf-8",
     /** Used as references for various `Number` constants. */
     MAX_SAFE_INTEGER = 9007199254740991,
     /** Used to detect unsigned integer values. */
@@ -130,29 +130,6 @@ function cleanObject(obj) {
     }
 
     return obj;
-}
-
-function queryStringtoJSON(src) {
-
-    return Object.fromEntries(new URLSearchParams(src));
-
-}
-
-function jsonToQueryString(json) {
-
-    if (!json) {
-        return "";
-    }
-
-    let searchObj = new URLSearchParams();
-
-    for (const key in json) {
-
-        searchObj.append(key, json[key]);
-    }
-
-    return searchObj.toString();
-
 }
 
 
@@ -421,8 +398,8 @@ module.exports = {
 
     isValidDate: isValidDate,
     dateToTicks: dateToTicks,
-    jsonToQueryString: jsonToQueryString,
-    queryStringtoJSON: queryStringtoJSON,
+    jsonToQueryString: json.jsonToQueryString,
+    queryStringtoJSON: json.queryStringtoJSON,
 
     generatePassword: generatePassword,
 
@@ -447,7 +424,7 @@ module.exports = {
     getHash: function (data) {
 
         if (typeof data === "object") {
-            data = JSON.stringify(data);
+            data = json.stringify(data);
         }
 
         let md5 = crypto.createHash('md5');
@@ -637,11 +614,11 @@ module.exports = {
 
     cleanObject: cleanObject,
 
-    utf8: utf8,
+    utf8: file.utf8,
     randomChar: randomChar,
     randomId: randomId,
-    parse: utils.parse,
-    stringify: utils.stringify,
+    parse: json.parse,
+    stringify: json.stringify,
     base64URLDecode: base64URLDecode,
     cleanEmptyObjectProperties: cleanEmptyObjectProperties,
     removeItemFromList: removeItemFromList,
