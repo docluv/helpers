@@ -484,7 +484,7 @@ module.exports = {
 
         return articles.sort(function (a, b) {
 
-            var dateA = new Date(a.published), // ignore upper and lowercase
+            let dateA = new Date(a.published), // ignore upper and lowercase
                 dateB = new Date(b.published); // ignore upper and lowercase
 
             if (dateA > dateB) {
