@@ -249,6 +249,7 @@ function generatePassword(pattern, length, options) {
     if (arguments.length === 1) {
 
         if (typeof pattern === 'string') {
+            
             length = pattern.length;
 
         } else if (isNumeric(pattern)) {
@@ -592,19 +593,22 @@ module.exports = {
 
     generateUUID: function () { // Public Domain/MIT
 
-        var d = new Date().getTime();
+        const hexValues = "0123456789abcdef";
+        let uuid = "";
 
-        return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx"
-            .replace(/[xy]/g,
-                function (c) {
+        for (let i = 0; i < 36; i++) {
+        
+            if (i === 8 || i === 13 || i === 18 || i === 23) {
+                uuid += "-";
+            } else if (i === 14) {
+                uuid += "4";
+            } else {
+                uuid += hexValues[Math.floor(Math.random() * 16)];
+            }
 
-                    var r = (d + Math.random() * 16) % 16 | 0;
-
-                    d = Math.floor(d / 16);
-
-                    return (c === "x" ? r : (r & 0x3 | 0x8)).toString(16);
-
-                });
+        }
+        
+        return uuid;
 
     },
 
