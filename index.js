@@ -3,10 +3,8 @@
 "use strict";
 
 const file = require("./files"),
-    utils = require("./utils"),
     json = require("./json"),
     crypto = require("crypto"),
-    mime = require("mime-types"),
     template = require("mustache"),
     /** Used as references for various `Number` constants. */
     MAX_SAFE_INTEGER = 9007199254740991,
@@ -408,19 +406,7 @@ module.exports = {
     padNumberWithLeadingZero: padNumberWithLeadingZero,
     AMPM: AMPM,
 
-    getMimeType: function (name) {
-
-        let mimeType = mime.lookup(name);
-
-        if (["text/html", "application/json", "text/javascript", "text/css"].includes(mimeType)) {
-
-            mimeType += ";charset=utf-8";
-
-        }
-
-        return mimeType;
-
-    },
+    getMimeType: file.getMimeType,
 
     getHash: function (data) {
 

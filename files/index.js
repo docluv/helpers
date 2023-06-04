@@ -1,5 +1,6 @@
 const fs = require("fs"),
     path = require("path"),
+    mime = require("mime-types"),
     utf8 = "utf-8",
     json = require("../json");
 
@@ -71,6 +72,20 @@ function stripBom(string) {
     }
 
     return string;
+}
+
+function getMimeType (name) {
+
+    let mimeType = mime.lookup(name);
+
+    if (["text/html", "application/json", "text/javascript", "text/css"].includes(mimeType)) {
+
+        mimeType += ";charset=utf-8";
+
+    }
+
+    return mimeType;
+
 }
 
 /**
@@ -271,5 +286,6 @@ module.exports = {
     getFolders: getFolders,
     loadFile: loadFile,
     readImage: readImage,
-    utf8: utf8
+    utf8: utf8,
+    getMimeType: getMimeType
 };
