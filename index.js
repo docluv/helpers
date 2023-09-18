@@ -247,7 +247,7 @@ function generatePassword(pattern, length, options) {
     if (arguments.length === 1) {
 
         if (typeof pattern === 'string') {
-            
+
             length = pattern.length;
 
         } else if (isNumeric(pattern)) {
@@ -433,6 +433,7 @@ module.exports = {
     writeJSON: file.writeJSON,
     ensureFilePath: file.ensureFilePath,
     createFile: file.createFile,
+    createImageFile: file.createImageFile,
     generateFile: file.generateFile,
     loadFile: file.loadFile,
     readImage: file.readImage,
@@ -583,7 +584,7 @@ module.exports = {
         let uuid = "";
 
         for (let i = 0; i < 36; i++) {
-        
+
             if (i === 8 || i === 13 || i === 18 || i === 23) {
                 uuid += "-";
             } else if (i === 14) {
@@ -593,7 +594,7 @@ module.exports = {
             }
 
         }
-        
+
         return uuid;
 
     },

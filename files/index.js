@@ -1,6 +1,7 @@
 const fs = require("fs"),
     path = require("path"),
     mime = require("mime-types"),
+    crypto = require('crypto'),
     utf8 = "utf-8",
     json = require("../json");
 
@@ -113,15 +114,26 @@ function readImage(src) {
 
 }
 
-
-function readFile(src) {
+function readFile(src, decrypt = false, algorithm = 'aes-256-cbc', key = '', iv = '') {
 
     if (fs.existsSync(src)) {
-
-        return stripBom(fs.readFileSync(src, utf8));
-
+    
+        let data = fs.readFileSync(src);
+    
+        if (decrypt) {
+    
+            const decipher = crypto.createDecipheriv(algorithm, key, iv);
+    
+            data = Buffer.concat([decipher.update(data), decipher.final()]);
+    
+        }
+    
+        return stripBom(data.toString('utf8'));
+    
     } else {
+    
         return undefined;
+    
     }
 
 }
@@ -187,13 +199,59 @@ function ensureFilePath(target) {
 
 }
 
+function createFile(target, body, encoding = 'utf8', override = false, encrypt = false, algorithm = 'aes-256-cbc', key = '', iv = '') {
 
-function createFile(target, body, override) {
+    if (!fs.existsSync(target) || override) {
+    
+        if (!fs.existsSync(path.dirname(target))) {
+            fs.mkdirSync(path.dirname(target), { recursive: true });
+        }
+
+        let data;
+
+        if (typeof body === 'string') {
+    
+            if (encoding === 'utf8' || encoding === 'utf-16le') {
+    
+                data = Buffer.from(body, encoding);
+    
+            } else if (encoding === 'base64') {
+    
+                data = Buffer.from(body, 'base64');
+    
+            } else {
+    
+                throw new Error(`Unsupported encoding: ${encoding}`);
+    
+            }
+    
+        } else {
+    
+            data = body;
+        }
+
+        if (encrypt) {
+    
+            const cipher = crypto.createCipheriv(algorithm, key, iv);
+            const encryptedData = Buffer.concat([cipher.update(data), cipher.final()]);
+    
+            fs.writeFileSync(target, encryptedData);
+    
+        } else {
+    
+            fs.writeFileSync(target, data);
+    
+        }
+    
+    }
+
+}
+
+function createImageFile(target, imageData, override) {
 
     override = override || false;
 
     if (!fs.existsSync(target) || override) {
-
         if (!fs.existsSync(path.dirname(target))) {
 
             fs.mkdirSync(path.dirname(target), {
@@ -202,10 +260,10 @@ function createFile(target, body, override) {
 
         }
 
-        fs.writeFileSync(target, body, utf8);
+        fs.writeFileSync(target, imageData);
     }
-
 }
+
 
 function generateFile(src, dest, data, override) {
 
@@ -222,11 +280,9 @@ function generateFile(src, dest, data, override) {
 }
 
 
-function walkSync(dir, filelist) {
+function walkSync(dir, filelist = []) {
 
     let files = fs.readdirSync(dir);
-
-    filelist = filelist || [];
 
     files.forEach(function (file) {
 
@@ -281,6 +337,7 @@ module.exports = {
     writeJSON: writeJSON,
     ensureFilePath: ensureFilePath,
     createFile: createFile,
+    createImageFile: createImageFile,
     generateFile: generateFile,
     walkSync: walkSync,
     getFolders: getFolders,

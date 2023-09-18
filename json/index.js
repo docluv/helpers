@@ -1,4 +1,4 @@
-
+const util = require("util");
 
 function parse(value) {
 
@@ -24,7 +24,16 @@ function stringify(value) {
 
     if (typeof value !== "string") {
 
-        value = JSON.stringify(value);
+        try {
+
+            value = JSON.stringify(value);
+
+
+        } catch (error) {
+            
+            value = util.inspect(obj);
+
+        }
 
     }
 
