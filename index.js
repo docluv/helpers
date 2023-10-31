@@ -242,14 +242,10 @@ function generatePassword(pattern, length, options) {
         throw new Error('randomatic expects a string or number.');
     }
 
-    let custom = false;
-
     if (arguments.length === 1) {
 
         if (typeof pattern === 'string') {
-
             length = pattern.length;
-
         } else if (isNumeric(pattern)) {
             options = {};
             length = pattern;
@@ -258,52 +254,45 @@ function generatePassword(pattern, length, options) {
 
     }
 
-    if (typeof length === 'object' &&
-        length.hasOwnProperty('chars')) {
-
+    if (typeof length === 'object' && length.hasOwnProperty('chars')) {
         options = length;
         pattern = options.chars;
         length = pattern.length;
-        custom = true;
     }
 
-    let opts = options || {},
-        mask = '',
-        res = '';
+    let opts = options || {};
+    let chars = {
+        lower: 'abcdefghijklmnopqrstuvwxyz',
+        upper: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+        number: '0123456789',
+        special: '!@#$%^&*()_+-=[]{}|;:,.<>?'
+    };
 
-    // Characters to be used
-    if (pattern.indexOf('?') !== -1) mask += opts.chars;
-    if (pattern.indexOf('a') !== -1) mask += type.lower;
-    if (pattern.indexOf('A') !== -1) mask += type.upper;
-    if (pattern.indexOf('0') !== -1) mask += type.number;
-    if (pattern.indexOf('!') !== -1) mask += type.special;
-    if (pattern.indexOf('*') !== -1) mask += type.all;
-    if (custom) mask += pattern;
+    let requiredChars = [];
+    if (pattern.includes('a')) requiredChars.push(chars.lower);
+    if (pattern.includes('A')) requiredChars.push(chars.upper);
+    if (pattern.includes('0')) requiredChars.push(chars.number);
+    if (pattern.includes('!')) requiredChars.push(chars.special);
 
-    // Characters to exclude
-    if (opts.exclude) {
+    let mask = requiredChars.join('');
+    let res = '';
 
-        let exclude = typeof opts.exclude === 'string' ?
-            opts.exclude : opts.exclude.join('');
+    // Ensure at least one character from each category
+    requiredChars.forEach(category => {
+        res += category.charAt(parseInt(Math.random() * category.length, 10));
+    });
 
-        exclude = exclude.replace(new RegExp('[\\]]+', 'g'), '');
-        mask = mask.replace(new RegExp('[' + exclude + ']+', 'g'), '');
-
-        if (opts.exclude.indexOf(']') !== -1) {
-
-            mask = mask.replace(new RegExp('[\\]]+', 'g'), '');
-
-        }
-    }
-
-    while (length--) {
+    // Fill the rest of the password length
+    while (res.length < length) {
         res += mask.charAt(parseInt(Math.random() * mask.length, 10));
     }
+
+    // Shuffle the result to ensure randomness
+    res = res.split('').sort(() => 0.5 - Math.random()).join('');
 
     return res;
 
 }
-
 function isArray(src) {
 
     return Array.isArray(src) && src.length > 0;

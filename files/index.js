@@ -325,8 +325,26 @@ function getFolders(dir) {
 
 };
 
+function fileExists(filePath) {
+
+    try {
+
+        //use the fs module to check if the file exists
+        fs.statSync(filePath);
+
+    } catch (e) {
+
+        return false;
+
+    }
+
+    return true;
+
+}
+
 
 module.exports = {
+    fileExists: fileExists,
     unixifyPath: unixifyPath,
     copyFileSync: copyFileSync,
     renameFile: renameFile,
