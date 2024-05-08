@@ -50,7 +50,7 @@ function atob(str) {
 
 function base64URLDecode(base64UrlEncodedValue) {
 
-    var result,
+    let result,
         newValue = base64UrlEncodedValue
             .replace("-", "+")
             .replace("_", "/");
@@ -64,6 +64,7 @@ function base64URLDecode(base64UrlEncodedValue) {
     }
 
     return parse(result);
+
 }
 
 
@@ -130,29 +131,42 @@ function cleanObject(obj) {
     return obj;
 }
 
-
 const assign = Object.assign || ((a, b) => (b && Object.keys(b).forEach(k => (a[k] = b[k])), a))
 
 const run = (isArr, copy, patch) => {
-
     const type = typeof patch;
 
     if (patch && type === 'object') {
-        if (Array.isArray(patch))
-            for (const p of patch) copy = run(isArr, copy, p)
-        else {
+        if (Array.isArray(patch)) {
+            for (const p of patch) {
+                copy = run(isArr, copy, p);
+            }
+        } else {
             for (const k of Object.keys(patch)) {
-                const val = patch[k]
-                if (typeof val === 'function') copy[k] = val(copy[k], merge)
-                else if (val === undefined) isArr && !isNaN(k) ? copy.splice(k, 1) : delete copy[k]
-                else if (val === null || typeof val !== 'object' || Array.isArray(val)) copy[k] = val
-                else if (typeof copy[k] === 'object') copy[k] = val === copy[k] ? val : merge(copy[k], val)
-                else copy[k] = run(false, {}, val)
+                const val = patch[k];
+                if (typeof val === 'function') {
+                    copy[k] = val(copy[k], merge);
+                } else if (val === undefined) {
+                    if (isArr && !isNaN(k)) {
+                        copy.splice(k, 1);
+                    } else {
+                        delete copy[k];
+                    }
+                } else if (val === null || typeof val !== 'object' || Array.isArray(val)) {
+                    copy[k] = val;
+                } else if (typeof copy[k] === 'object') {
+                    copy[k] = val === copy[k] ? val : merge(copy[k], val);
+                } else {
+                    copy[k] = run(false, {}, val);
+                }
             }
         }
-    } else if (type === 'function') copy = patch(copy, merge)
-    return copy
-}
+    } else if (type === 'function') {
+        copy = patch(copy, merge);
+    }
+
+    return copy;
+};
 
 const merge = (source, ...patches) => {
     const isArr = Array.isArray(source)
@@ -293,6 +307,7 @@ function generatePassword(pattern, length, options) {
     return res;
 
 }
+
 function isArray(src) {
 
     return Array.isArray(src) && src.length > 0;
@@ -348,7 +363,6 @@ async function allSettled(funcs) {
 
 }
 
-
 function ensureEndingSlash(src) {
 
     if (!src.endsWith("/")) {
@@ -372,7 +386,6 @@ function padNumberWithLeadingZero(number, padding) {
     return String(number).padStart(padding, '0') || "00"
 
 }
-
 
 function AMPM(hours) {
 
@@ -457,12 +470,12 @@ module.exports = {
         return template.render(src, data);
     },
 
-    sortArticlesByDate: articles => {
+    sortObjectsByDate: (objs, field) => {
 
-        return articles.sort(function (a, b) {
+        return objs.sort(function (a, b) {
 
-            let dateA = new Date(a.published), // ignore upper and lowercase
-                dateB = new Date(b.published); // ignore upper and lowercase
+            let dateA = new Date(a[field]), 
+                dateB = new Date(b[field]); 
 
             if (dateA > dateB) {
                 return -1;

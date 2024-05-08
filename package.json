@@ -1,5 +1,5 @@
 {
-  "name": "node-helpers",
+  "name": "@docluv/helpers",
   "version": "1.0.0",
   "description": "private node helper utility methods",
   "main": "index.js",
@@ -23,6 +23,7 @@
     "mime-types": "*",
     "mkdirp": "*",
     "mustache": "*",
-    "uuid": "*"
+    "uuid": "*",
+    "ytdl-core": "^4.11.5"
   }
 }
