@@ -75,7 +75,7 @@ function stripBom(string) {
     return string;
 }
 
-function getMimeType (name) {
+function getMimeType(name) {
 
     let mimeType = mime.lookup(name);
 
@@ -117,31 +117,31 @@ function readImage(src) {
 function readFile(src, decrypt = false, algorithm = 'aes-256-cbc', key = '', iv = '') {
 
     if (fs.existsSync(src)) {
-    
+
         let data = fs.readFileSync(src);
-    
+
         if (decrypt) {
-    
+
             const decipher = crypto.createDecipheriv(algorithm, key, iv);
-    
+
             data = Buffer.concat([decipher.update(data), decipher.final()]);
-    
+
         }
-    
+
         return stripBom(data.toString('utf8'));
-    
+
     } else {
-    
+
         return undefined;
-    
+
     }
 
 }
 
 function loadFile(src) {
- 
+
     const type = mime.lookup(src);
- 
+
     if (type.startsWith('text')) {
         return readFile(src);
     } else if (type.startsWith('image')) {
@@ -167,7 +167,12 @@ function readJSON(src) {
 
 function writeJSON(target, body, overwrite) {
 
-    return createFile(target, json.stringify(body), 'utf8', overwrite);
+    return createFile({
+        target: target,
+        body: JSON.stringify(body),
+        encoding: 'utf8',
+        override: overwrite
+    });
 
 }
 
