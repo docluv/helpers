@@ -114,7 +114,7 @@ function readImage(src) {
 
 }
 
-function readFile(src, decrypt = false, algorithm = 'aes-256-cbc', key = '', iv = '') {
+function readFile(src, decrypt = false, algorithm = 'aes-256-cbc', key = '', iv = '', encoding = 'utf8') {
 
     if (fs.existsSync(src)) {
 
@@ -128,7 +128,7 @@ function readFile(src, decrypt = false, algorithm = 'aes-256-cbc', key = '', iv 
 
         }
 
-        return stripBom(data.toString('utf8'));
+        return stripBom(data.toString(encoding));
 
     } else {
 
@@ -267,7 +267,6 @@ function createImageFile(target, imageData, override) {
     }
 }
 
-
 function generateFile(src, dest, data, override) {
 
     override = override || false;
@@ -281,7 +280,6 @@ function generateFile(src, dest, data, override) {
     }
 
 }
-
 
 function walkSync(dir, filelist = []) {
 
@@ -303,7 +301,6 @@ function walkSync(dir, filelist = []) {
     return filelist;
 
 }
-
 
 function getFolders(dir) {
 

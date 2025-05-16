@@ -3,15 +3,68 @@
 "use strict";
 
 const file = require("./files"),
-    json = require("./json"),
+    { jsonToQueryString,
+        queryStringtoJSON
+    } = require("./json"),
+    {
+        reverseString,
+        isPalindrome,
+        truncateString,
+        countOccurrences,
+        removeWhitespace,
+        capitalizeFirstLetter,
+        makeSlug,
+        titleCase,
+        pad,
+        getInitials
+    } = require("./strings"),
     crypto = require("crypto"),
     template = require("mustache"),
+    utils = require("./utils"),
+    {
+        isArray,
+        removeEmptyItems,
+        removeItemFromList,
+        allSettled,
+        flattenArray,
+        removeDuplicates,
+        groupBy,
+        intersect,
+        shuffleArray
+    } = require("./array"),
+    cryptoUtils = require("./crypto"),
+    httpUtils = require("./http"),
+    {
+        formatDate,
+        addDays,
+        differenceInDays,
+        startOfDay,
+        endOfDay,
+        isValidDate,
+        dateToTicks,
+        dateToString,
+        dateToDate
+    } = require("./date"),
+    {
+        ValidationError,
+        FileNotFoundError,
+        ValidationError,
+        FileNotFoundError,
+        AuthenticationError,
+        AuthorizationError,
+        BadRequestError,
+        ConflictError,
+        NotFoundError,
+        InternalServerError,
+        ServiceUnavailableError
+    } = require("./errors"),
     /** Used as references for various `Number` constants. */
     MAX_SAFE_INTEGER = 9007199254740991,
     /** Used to detect unsigned integer values. */
     reIsUint = /^(?:0|[1-9]\d*)$/;
 
 
+module.exports.arrayHelpers = arrayHelpers;
 const randomChar = () => {
     return String.fromCharCode(65 + Math.floor(Math.random() * 26));
 };
@@ -67,7 +120,6 @@ function base64URLDecode(base64UrlEncodedValue) {
 
 }
 
-
 function cleanEmptyObjectProperties(obj) {
 
     let ex = obj;
@@ -90,24 +142,6 @@ function cleanEmptyObjectProperties(obj) {
 
     return ex;
 
-}
-
-function isValidDate(src) {
-
-    if (typeof src === "number") {
-        return true;
-    }
-
-    return !isNaN(Date.parse(src));
-}
-
-function dateToTicks(src) {
-
-    if (isValidDate(src)) {
-        return new Date(src).getTime();
-    } else {
-        return new Date().getTime();
-    }
 }
 
 function cleanObject(obj) {
@@ -221,34 +255,6 @@ function basePullAt(array, indexes) {
 
 }
 
-function removeItemFromList(array, predicate) {
-
-    const result = [];
-
-    if (!(array !== null && array.length)) {
-        return result;
-    }
-
-    let index = -1;
-    const indexes = [];
-    const {
-        length
-    } = array;
-
-    while (++index < length) {
-
-        const value = array[index];
-
-        if (predicate(value, index, array)) {
-            result.push(value);
-            indexes.push(index);
-        }
-    }
-
-    basePullAt(array, indexes);
-
-    return result;
-}
 
 function generatePassword(pattern, length, options) {
 
@@ -308,61 +314,6 @@ function generatePassword(pattern, length, options) {
 
 }
 
-function isArray(src) {
-
-    return Array.isArray(src) && src.length > 0;
-
-}
-
-function removeEmptyItems(src) {
-
-    if (!src || !Array.isArray(src)) {
-        return [];
-    }
-
-    return src.filter(o => {
-        return !!o;
-    });
-
-}
-
-/**
- * 
- * @param {Array of promise/async methods to execute} funcs 
- * 
-    executes a Promise.allSettled on an array of async functions.
-    it then filters successful and rejected functions into a return object.
-
-
- */
-async function allSettled(funcs) {
-
-    let results = await Promise.allSettled(funcs);
-
-    let rejected = [];
-
-    results = results.map(o => {
-
-        if (o.status === "fulfilled") {
-
-            return o.value;
-
-        } else {
-
-            rejected.push(o.reason);
-
-        }
-    }).filter(o => {
-        return !!o;
-    });
-
-    return {
-        "results": results,
-        "rejected": rejected
-    };
-
-}
-
 function ensureEndingSlash(src) {
 
     if (!src.endsWith("/")) {
@@ -397,10 +348,18 @@ module.exports = {
 
     merge: merge,
 
-    isValidDate: isValidDate,
-    dateToTicks: dateToTicks,
-    jsonToQueryString: json.jsonToQueryString,
-    queryStringtoJSON: json.queryStringtoJSON,
+    formatDate,
+    addDays,
+    differenceInDays,
+    startOfDay,
+    endOfDay,
+    isValidDate,
+    dateToTicks,
+    dateToString,
+    dateToDate,
+
+    jsonToQueryString,
+    queryStringtoJSON,
 
     generatePassword: generatePassword,
 
@@ -440,31 +399,16 @@ module.exports = {
     loadFile: file.loadFile,
     readImage: file.readImage,
 
-    capitalizeFirstLetter: function (str) {
-
-        if (typeof str === "string") {
-            return str.replace(/^\w/, c => c.toUpperCase());
-        } else {
-            return "";
-        }
-
-    },
-
-    makeSlug: function (src) {
-
-        if (typeof src === "string") {
-
-            return src.replace(/ +/g, "-")
-                .replace(/\'/g, "")
-                .replace(/[^\w-]+/g, "")
-                .replace(/-+/g, "-")
-                .toLowerCase();
-
-        }
-
-        return "";
-
-    },
+    reverseString,
+    isPalindrome,
+    truncateString,
+    countOccurrences,
+    removeWhitespace,
+    capitalizeFirstLetter,
+    makeSlug,
+    titleCase,
+    pad,
+    getInitials,
 
     render: function (src, data) {
         return template.render(src, data);
@@ -474,8 +418,8 @@ module.exports = {
 
         return objs.sort(function (a, b) {
 
-            let dateA = new Date(a[field]), 
-                dateB = new Date(b[field]); 
+            let dateA = new Date(a[field]),
+                dateB = new Date(b[field]);
 
             if (dateA > dateB) {
                 return -1;
@@ -494,24 +438,6 @@ module.exports = {
 
     "ensureEndingSlash": ensureEndingSlash,
 
-    titleCase: function (str) {
-
-        if (str) {
-
-            return str.replace(
-                /\w\S*/g,
-                function (txt) {
-                    return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
-                }
-            );
-
-        } else {
-
-            return "";
-
-        }
-    },
-
     getNextModule: function (page, current) {
 
         let index = page.modules.indexOf(current);
@@ -524,14 +450,7 @@ module.exports = {
 
     },
 
-    pad: function (num, size) {
 
-        var s = num + "";
-
-        while (s.length < size) s = "0" + s;
-
-        return s;
-    },
 
     convertOnOfftoBool: function (value) {
 
@@ -601,9 +520,6 @@ module.exports = {
 
     },
 
-    getInitials: function (str) {
-        return str.replace(" - ", " ").split(" ").map((n) => n[0]).join("").substring(0, 2).toUpperCase();
-    },
 
     cleanObject: cleanObject,
 
@@ -614,8 +530,25 @@ module.exports = {
     stringify: json.stringify,
     base64URLDecode: base64URLDecode,
     cleanEmptyObjectProperties: cleanEmptyObjectProperties,
-    removeItemFromList: removeItemFromList,
-    isArray: isArray,
-    removeEmptyItems: removeEmptyItems,
-    allSettled: allSettled
+    
+    isArray,
+    removeEmptyItems,
+    removeItemFromList,
+    allSettled,
+    flattenArray,
+    removeDuplicates,
+    groupBy,
+    intersect,
+    shuffleArray,
+    
+    ValidationError,
+    FileNotFoundError, ValidationError,
+    FileNotFoundError,
+    AuthenticationError,
+    AuthorizationError,
+    BadRequestError,
+    ConflictError,
+    NotFoundError,
+    InternalServerError,
+    ServiceUnavailableError
 };
