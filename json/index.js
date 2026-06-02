@@ -31,7 +31,7 @@ function stringify(value) {
 
         } catch (error) {
             
-            value = util.inspect(obj);
+            value = util.inspect(value);
 
         }
 
@@ -40,7 +40,6 @@ function stringify(value) {
     return value;
 
 }
-
 
 function queryStringtoJSON(src) {
 

@@ -5,7 +5,6 @@ const fs = require("fs"),
     utf8 = "utf-8",
     json = require("../json");
 
-
 function unixifyPath(filepath) {
 
     if (isWindows) {
@@ -20,7 +19,6 @@ function unixifyPath(filepath) {
 
 }
 
-
 function copyFileSync(srcFile, destFile, override) {
 
     override = override || true;
@@ -32,7 +30,6 @@ function copyFileSync(srcFile, destFile, override) {
     }
 
 }
-
 
 async function renameFile(srcPath, newPath) {
 
@@ -50,7 +47,6 @@ async function renameFile(srcPath, newPath) {
 
 }
 
-
 function MakeDirectory(target) {
 
     if (!fs.existsSync(target)) {
@@ -58,7 +54,6 @@ function MakeDirectory(target) {
     }
 
 }
-
 
 function stripBom(string) {
 
@@ -342,25 +337,46 @@ function fileExists(filePath) {
 
 }
 
+//delete a file
+async function deleteFile(filePath) {
+
+    try {
+        await fs.promises.unlink(filePath);
+        return true;
+    } catch (error) {
+        console.error(`Error deleting file: ${error}`);
+        return false;
+    }
+}
 
 module.exports = {
-    fileExists: fileExists,
-    unixifyPath: unixifyPath,
-    copyFileSync: copyFileSync,
-    renameFile: renameFile,
-    MakeDirectory: MakeDirectory,
-    stripBom: stripBom,
-    readFile: readFile,
-    readJSON: readJSON,
-    writeJSON: writeJSON,
-    ensureFilePath: ensureFilePath,
-    createFile: createFile,
-    createImageFile: createImageFile,
-    generateFile: generateFile,
-    walkSync: walkSync,
-    getFolders: getFolders,
-    loadFile: loadFile,
-    readImage: readImage,
-    utf8: utf8,
-    getMimeType: getMimeType
+    // paths / folders
+    unixifyPath,
+    MakeDirectory,
+    ensureFilePath,
+    getFolders,
+    walkSync,
+
+    // existence / file ops
+    fileExists,
+    copyFileSync,
+    renameFile,
+    deleteFile,
+
+    // reading
+    stripBom,
+    readFile,
+    readJSON,
+    readImage,
+    loadFile,
+
+    // writing
+    createFile,
+    createImageFile,
+    writeJSON,
+    generateFile,
+
+    // misc
+    getMimeType,
+    utf8
 };

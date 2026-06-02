@@ -2,7 +2,37 @@
 
 "use strict";
 
-const file = require("./files"),
+const {
+    // paths / folders
+    unixifyPath,
+    MakeDirectory,
+    ensureFilePath,
+    getFolders,
+    walkSync,
+
+    // existence / file ops
+    fileExists,
+    copyFileSync,
+    renameFile,
+    deleteFile,
+
+    // reading
+    stripBom,
+    readFile,
+    readJSON,
+    readImage,
+    loadFile,
+
+    // writing
+    createFile,
+    createImageFile,
+    writeJSON,
+    generateFile,
+
+    // misc
+    getMimeType,
+    utf8
+} = require("./files"),
     { jsonToQueryString,
         queryStringtoJSON
     } = require("./json"),
@@ -20,7 +50,7 @@ const file = require("./files"),
     } = require("./strings"),
     crypto = require("crypto"),
     template = require("mustache"),
-    utils = require("./utils"),
+   // utils = require("./utils"),
     {
         isArray,
         removeEmptyItems,
@@ -367,8 +397,6 @@ module.exports = {
     padNumberWithLeadingZero: padNumberWithLeadingZero,
     AMPM: AMPM,
 
-    getMimeType: file.getMimeType,
-
     getHash: function (data) {
 
         if (typeof data === "object") {
@@ -382,22 +410,35 @@ module.exports = {
         return md5.digest('hex');
     },
 
-    unixifyPath: file.unixifyPath,
-    renameFile: file.renameFile,
-    MakeDirectory: file.MakeDirectory,
-    walkSync: file.walkSync,
-    getFolders: file.getFolders,
-    copyFileSync: file.copyFileSync,
-    stripBom: file.stripBom,
-    readFile: file.readFile,
-    readJSON: file.readJSON,
-    writeJSON: file.writeJSON,
-    ensureFilePath: file.ensureFilePath,
-    createFile: file.createFile,
-    createImageFile: file.createImageFile,
-    generateFile: file.generateFile,
-    loadFile: file.loadFile,
-    readImage: file.readImage,
+    // paths / folders
+    unixifyPath,
+    MakeDirectory,
+    ensureFilePath,
+    getFolders,
+    walkSync,
+
+    // existence / file ops
+    fileExists,
+    copyFileSync,
+    renameFile,
+    deleteFile,
+
+    // reading
+    stripBom,
+    readFile,
+    readJSON,
+    readImage,
+    loadFile,
+
+    // writing
+    createFile,
+    createImageFile,
+    writeJSON,
+    generateFile,
+
+    // misc
+    getMimeType,
+    utf8,
 
     reverseString,
     isPalindrome,
@@ -449,8 +490,6 @@ module.exports = {
         }
 
     },
-
-
 
     convertOnOfftoBool: function (value) {
 
@@ -520,17 +559,15 @@ module.exports = {
 
     },
 
+    cleanObject,
 
-    cleanObject: cleanObject,
-
-    utf8: file.utf8,
-    randomChar: randomChar,
-    randomId: randomId,
+    randomChar,
+    randomId,
     parse: json.parse,
     stringify: json.stringify,
-    base64URLDecode: base64URLDecode,
-    cleanEmptyObjectProperties: cleanEmptyObjectProperties,
-    
+    base64URLDecode,
+    cleanEmptyObjectProperties,
+
     isArray,
     removeEmptyItems,
     removeItemFromList,
@@ -540,9 +577,10 @@ module.exports = {
     groupBy,
     intersect,
     shuffleArray,
-    
+
     ValidationError,
-    FileNotFoundError, ValidationError,
+    FileNotFoundError, 
+    ValidationError,
     FileNotFoundError,
     AuthenticationError,
     AuthorizationError,
