@@ -50,7 +50,7 @@ async function renameFile(srcPath, newPath) {
 function MakeDirectory(target) {
 
     if (!fs.existsSync(target)) {
-        fs.mkdirSync(target);
+        fs.mkdirSync(target, { recursive: true });
     }
 
 }
@@ -191,7 +191,7 @@ function ensureFilePath(target) {
 
         if (!fs.existsSync(targetFolder)) {
 
-            fs.mkdirSync(targetFolder);
+            fs.mkdirSync(targetFolder, { recursive: true });
 
         }
 
